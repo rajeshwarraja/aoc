@@ -9,79 +9,6 @@ D 1
 L 5
 R 2`
 
-function traceTailPath(head, tail) {
-    const dx = head.x - tail.x
-    const dy = head.y - tail.y
-    const adx = Math.abs(dx)
-    const ady = Math.abs(dy)
-    const dirx = adx > 0? dx / adx : 0
-    const diry = ady > 0? dy / ady : 0
-    let places = []
-
-    for(let x = tail.x + dirx, y = tail.y + diry;
-	x != head.x || y != head.y;
-	x = x != head.x? x + dirx : x, y = y != head.y? y + diry : y)
-	places.push({x,y})
-
-    return places
-}
-
-function moveHead(head, move) {
-    const dir = move[0]
-    const len = Number(move.slice(2))
-    switch(dir) {
-    case 'R':
-	head.y = head.y + len
-	break
-    case 'L':
-	head.y = head.y - len
-	break
-    case 'U':
-	head.x = head.x + len
-	break
-    case 'D':
-	head.x = head.x - len
-	break
-    }
-    return head
-}
-
-function getKnotPosition(rope, index) {
-    if(rope.positions[index] === undefined) rope.positions[index] = [{x:0,y:0}]
-    return rope.positions[index][rope.positions[index].length - 1]
-}
-
-function updateKnotPositions(rope, index, positions) {
-    rope.positions[index].push(...positions)
-}
-
-function traceRope(rope, move) {
-    updateKnotPositions(rope, 0, [moveHead(getKnotPosition(rope, 0), move)])
-
-    for(let i = 0; i < rope.knots - 1; i++) {
-	const head = getKnotPosition(rope, i)
-	const tail = getKnotPosition(rope, i + 1)
-	const path = traceTailPath(head, tail)
-
-	console.log(`K${i}: ${head.x} ${head.y}`)
-	
-	updateKnotPositions(rope, i + 1, path)
-    }
-
-    const pos = getKnotPosition(rope, rope.knots - 1)
-    console.log(`K${rope.knots - 1}: ${pos.x} ${pos.y}`)
-    
-    
-    console.log()
-    return rope
-}
-
-function solvePart1(input) {
-    const rope = input.split('\n').reduce(traceRope, { knots: 2, positions: [] })
-    uniquePlaces = new Set(rope.positions[rope.knots - 1].map((pos) => JSON.stringify(pos)))
-    return uniquePlaces.size
-}
-
 const largerSampleInput = `R 5
 U 8
 L 8
@@ -91,18 +18,130 @@ D 10
 L 25
 U 20`
 
-function solvePart2(input) {    
-    const rope = input.split('\n').reduce(traceRope, { knots: 10, positions: [] })
-    uniquePlaces = new Set(rope.positions[rope.knots - 1].map((pos) => JSON.stringify(pos)))
+function renderPath(path) {
+    const minX = Math.min(...path.map((p) => p.x))
+    const minY = Math.min(...path.map((p) => p.y))
+    const maxX = Math.max(...path.map((p) => p.x))
+    const maxY = Math.max(...path.map((p) => p.y))
 
-    console.log(rope.positions[rope.knots - 1])
-    
-    return uniquePlaces.size
+    const width = maxX - minX, height = maxY - minY
+    const offX = Math.abs(minX), offY = Math.abs(minY)
+    console.log(`${width}x${height} -> ${offX}, ${offY}`)
+
+    const pathSet = new Set(path.map((p) => JSON.stringify(p)))    
+    for(let x = 0; x <= width; ++x) {
+	let row = ''
+	for(let y = 0; y <= height; ++y) {
+	    if(x === offX && y === offY) {
+		row = row + 's'
+	    } else {
+		row = row + (pathSet.has(JSON.stringify({x:x-offX,y:y-offY}))? '#' : '.')
+	    }
+	}
+	console.log(row)
+    }
+}
+
+function tracePath(point, move) {
+    let path = []
+    switch(move.dir) {
+    case 'R':
+	for(let i = 1; i <= move.len; ++i) path.push({x:point.x+i, y:point.y})
+	break
+    case 'L':
+	for(let i = 1; i <= move.len; ++i) path.push({x:point.x-i, y:point.y})
+	break
+    case 'U':
+	for(let i = 1; i <= move.len; ++i) path.push({x:point.x, y:point.y+i})
+	break
+    case 'D':
+	for(let i = 1; i <= move.len; ++i) path.push({x:point.x, y:point.y-i})
+	break
+    }
+    return path
+}
+
+function lastPoint(path) { return path[path.length-1] }
+
+function solvePart1(input) {
+    const moves = input.split('\n').map((moveStr) => {
+	const dir = moveStr[0]
+	const len = Number(moveStr.slice(2))
+	return { dir, len }
+    })
+
+    const rope = moves.reduce((rope, move) => {
+	const steps = tracePath(lastPoint(rope[0]), move)
+
+	for(const step of steps) {
+	    rope[0].push(step)
+	    for(let i = 1; i < rope.length; ++i) {
+		const p0 = lastPoint(rope[i - 1])
+		const p1 = lastPoint(rope[i])
+		if(Math.abs(p0.x - p1.x) > 1) {
+		    const dir = (p1.x - p0.x) / Math.abs(p1.x - p0.x)
+		    rope[i].push({x:p0.x+dir,y:p0.y})
+		} else if(Math.abs(p0.y - p1.y) > 1) {
+		    const dir = (p1.y - p0.y) / Math.abs(p1.y - p0.y)
+		    rope[i].push({x:p0.x,y:p0.y+dir})		    
+		}
+	    }
+	}
+	
+	return rope
+    }, [ [{x:0,y:0}],[{x:0,y:0}] ])
+
+    const pointSet = new Set(rope[rope.length - 1].map(p => JSON.stringify(p)))
+    return pointSet.size
+}
+
+
+function solvePart2(input) {    
+    const moves = input.split('\n').map((moveStr) => {
+	const dir = moveStr[0]
+	const len = Number(moveStr.slice(2))
+	return { dir, len }
+    })
+
+    const rope = moves.reduce((rope, move) => {
+	const steps = tracePath(lastPoint(rope[0]), move)
+
+	for(const step of steps) {
+	    rope[0].push(step)
+	    
+	    for(let i = 1; i < rope.length; ++i) {
+		const p0 = lastPoint(rope[i - 1])
+		const p1 = lastPoint(rope[i])
+		if(Math.abs(p0.x - p1.x) > 1 && Math.abs(p0.y - p1.y) > 1) {
+		    const dirX = (p1.x - p0.x) / Math.abs(p1.x - p0.x)
+		    const dirY = (p1.y - p0.y) / Math.abs(p1.y - p0.y)
+		    rope[i].push({x:p0.x+dirX,y:p0.y+dirY})
+		}
+		else if(Math.abs(p0.x - p1.x) > 1) {
+		    const dir = (p1.x - p0.x) / Math.abs(p1.x - p0.x)
+		    rope[i].push({x:p0.x+dir,y:p0.y})
+		} else if(Math.abs(p0.y - p1.y) > 1) {
+		    const dir = (p1.y - p0.y) / Math.abs(p1.y - p0.y)
+		    rope[i].push({x:p0.x,y:p0.y+dir})		    
+		}
+	    }
+	}
+	
+	return rope
+    }, [
+	[{x:0,y:0}],[{x:0,y:0}],[{x:0,y:0}],[{x:0,y:0}],[{x:0,y:0}],
+	[{x:0,y:0}],[{x:0,y:0}],[{x:0,y:0}],[{x:0,y:0}],[{x:0,y:0}]
+    ])
+
+    // renderPath(rope[9])
+
+    const pointSet = new Set(rope[rope.length - 1].map(p => JSON.stringify(p)))
+    return pointSet.size
 }
 
 function run() {
     console.log('********* Day 9 **********')
-    // console.log(`Part 1: ${solvePart1(puzzleInput)}`)
+    console.log(`Part 1: ${solvePart1(puzzleInput)}`)
     console.log(`Part 2: ${solvePart2(puzzleInput)}`)
 }
 
