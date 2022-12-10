@@ -101,7 +101,7 @@ function solvePart2(input) {
     const usedSize = calculateDirectorySize(tree.root, sizeList)
     const freeSize = 70000000 - usedSize
     const sizeRequired = 30000000 - freeSize
-    return sizeList.filter((size) => size > sizeRequired)[0]
+    return [...sizeList].sort((num1, num2) => num1 - num2).filter((size) => size > sizeRequired)[0]
 }
 
 function run() {
