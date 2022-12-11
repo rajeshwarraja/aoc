@@ -98,12 +98,6 @@ function solvePart2(input) {
 	    }
 	    monkey.items = []
 	}
-
-	if(false) {
-	    monkeys.forEach((m) => {
-		console.log(`Monkey ${m.id} inspected items ${m.inspectCount} items.`)
-	    })
-	}
     }
 
     return monkeys.map((m) => m.inspectCount).sort((num1, num2) => num2 - num1).slice(0, 2).reduce((prod, num) => prod * num, 1)
