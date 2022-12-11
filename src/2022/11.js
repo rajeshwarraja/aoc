@@ -28,7 +28,7 @@ Monkey 3:
     If true: throw to monkey 0
     If false: throw to monkey 1`
 
-function findMonkeyFunc(lines) {
+function findMonkeyFuncPart1(lines) {
     const expr = lines[0].match(/^\s+Operation:\snew\s=\s(.+)$/)[1]
     const testNumber = Number(lines[1].slice(21))
     const trueId = Number(lines[2].slice(29))
@@ -40,18 +40,32 @@ function findMonkeyFunc(lines) {
     }
 }
 
-function parseMonkey(data) {
+function findMonkeyFuncPart2(lines) {
+    const expr = lines[0].match(/^\s+Operation:\snew\s=\s(.+)$/)[1]
+    const testNumber = Number(lines[1].slice(21))
+    const trueId = Number(lines[2].slice(29))
+    const falseId = Number(lines[3].slice(30))
+    return (old, factor) => {
+	let item = eval(expr)
+	item = item % factor
+	const monkey = (item % testNumber) === 0? trueId : falseId
+	return {monkey, item }
+    }
+}
+
+function parseMonkey(data, func) {
     const lines = data.split('\n')
     return {
 	id: lines[0].match(/^Monkey\s(\d+):$/)[1],
 	items: lines[1].match(/^\s+Starting items:\s([\d,\s]+)$/)[1].split(',').map(Number),
-	monkey: findMonkeyFunc(lines.splice(2)),
+	factor: Number(lines[3].slice(21)),
+	monkey: func(lines.splice(2)),
 	inspectCount: 0
     }
 }
 
 function solvePart1(input) {    
-    const monkeys = input.split('\n\n').map(parseMonkey)
+    const monkeys = input.split('\n\n').map((info) => parseMonkey(info, findMonkeyFuncPart1))
 
     // Monkey Business
     const round = 20
@@ -70,15 +84,16 @@ function solvePart1(input) {
 }
 
 function solvePart2(input) {
-    const monkeys = input.split('\n\n').map(parseMonkey)
+    const monkeys = input.split('\n\n').map((info) => parseMonkey(info, findMonkeyFuncPart2))
 
+    const factor = monkeys.reduce((factor, m) => factor * m.factor, 1)
     // Monkey Business
     const round = 10000
     for(let r = 0; r < round; ++r) {
 	for(let monkey of monkeys) {
 	    for(let item of monkey.items) {
 		monkey.inspectCount++
-		const move = monkey.monkey(item)
+		const move = monkey.monkey(item, factor)
 		monkeys[move.monkey].items.push(move.item)
 	    }
 	    monkey.items = []
@@ -96,8 +111,8 @@ function solvePart2(input) {
 
 function run() {
     console.log('********* Day 11 *********')
-    console.log(`Part 1: ${solvePart1(sampleInput)}`)
-    console.log(`Part 2: ${solvePart2(sampleInput)}`)
+    console.log(`Part 1: ${solvePart1(puzzleInput)}`)
+    console.log(`Part 2: ${solvePart2(puzzleInput)}`)
 }
 
 module.exports = {
