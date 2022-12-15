@@ -10,7 +10,8 @@ const days = [
     require('./2022/9.js'),
     require('./2022/10.js'),
     require('./2022/11.js'),
+    require('./2022/12.js'),
 ]
 
-days.slice(0, days.length - 1).forEach((day) => day.run())
+// days.slice(0, days.length - 1).forEach((day) => day.run())
 days[days.length - 1].run()
