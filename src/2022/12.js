@@ -57,56 +57,45 @@ function insideGrid(grid, point) {
 
 function movable(grid, from, to) {
     return insideGrid(grid, from) && insideGrid(grid, to)
-        && (height(grid, to) >= 0)
 	&& (height(grid, to) - height(grid, from)) <= 1
 }
 
-function reachablePoints(grid, path, from) {
+function reachablePoints(grid, from) {
     return [
 	{x:from.x+1, y:from.y},
 	{x:from.x, y:from.y+1},
 	{x:from.x, y:from.y-1},
 	{x:from.x-1, y:from.y},
-    ].filter((p) => path.every((s) => !areEqual(s, p)) && movable(grid, from, p)).sort((a, b) => height(grid, b) - height(grid, a))
+    ].filter((p) => movable(grid, from, p))
 }
 
-let shortestPath;
+function tracePath(grid, from, to) {
+    let dist = []
+    for(let y = 0; y < grid.length; ++y) {
+	let row = []
+	for(let x = 0; x < grid[0].length; ++x) {
+	    if(areEqual(from, {x,y})) {
+		row.push(0)
+	    } else {
+		row.push(1/0)
+	    }
+	}
+	dist.push(row)
+    }
 
-function tracePath(grid, path, to) {
-    const from = path[path.length - 1]
-
-    if(areEqual(from, to)) {
-	if(shortestPath === undefined || shortestPath.length > path.length) {
-	    if(shortestPath === undefined)
-		console.log('Path found')
-	    else
-		console.log('Shorter path found')
-	    shortestPath = [...path]
-	    // renderPath(grid, shortestPath)
-	    return
+    for(let i = 0; i < (grid.length * grid[0].length) - 1; ++i) {
+	for (let uY = 0; uY < grid.length; ++uY) {
+	    for (let uX = 0; uX < grid[0].length; ++uX) {
+		for (const p of reachablePoints(grid, { x: uX, y: uY })) {
+		    if (dist[uY][uX] + 1 < dist[p.y][p.x]) {
+			dist[p.y][p.x] = dist[uY][uX] + 1
+		    }
+		}
+	    }
 	}
     }
-
-    if(shortestPath != undefined && shortestPath.length <= path.length) {
-	return
-    }
     
-    const nextPoints = reachablePoints(grid, path, from)
-
-    if(nextPoints.length === 0) {
-	renderPath(grid, path)
-	return
-    }
-    
-    // renderPath(grid, path, nextPoints)
-    
-    nextPoints.forEach((p) => {
-	path.push(p)
-	tracePath(grid, path, to)
-	path.pop()
-    })
-
-    // renderPath(grid, path, nextPoints)
+    return dist[to.y][to.x]
 }
 
 function solvePart1(input) {
@@ -119,19 +108,27 @@ function solvePart1(input) {
 	return fromTo
     }, {})
 
-    tracePath(grid, [fromTo.from], fromTo.to)
-
-    // renderPath(grid, shortestPath)
-
-    return shortestPath.length - 1
+    return tracePath(grid, fromTo.from, fromTo.to)
 }
 
 function solvePart2(input) {
+    const grid = input.split('\n').map((row) => row.split(''))
+    const fromTo = grid.reduce((fromTo, row, rowIndex) => {
+	const startIndex = row.indexOf('S')
+	if(startIndex != -1) fromTo.from = {x:startIndex, y:rowIndex}
+	const endIndex = row.indexOf('E')
+	if(endIndex != -1) fromTo.to = {x:endIndex, y:rowIndex}
+	return fromTo
+    }, {})
+
+    const list = grid.map((_, index) => tracePath(grid, {x:0, y:index}, fromTo.to))
+    
+    return Math.min(...list)
 }
 
 function run() {
     console.log('********* Day 12 *********')
-    console.log(`Part 1: ${solvePart1(puzzleInput)}`)
+    console.log(`Part 1: ${solvePart1(sampleInput)}`)
     console.log(`Part 2: ${solvePart2(sampleInput)}`)
 }
 
