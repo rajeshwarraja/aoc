@@ -10475,7 +10475,32 @@ abccccaaaaaaaaccccccccccccccccaaccccaacaaaaaaaaaaaaaaccaaaaccccaaacccccccccccccc
 508,60 -> 508,58 -> 508,60 -> 510,60 -> 510,55 -> 510,60 -> 512,60 -> 512,51 -> 512,60 -> 514,60 -> 514,59 -> 514,60 -> 516,60 -> 516,58 -> 516,60 -> 518,60 -> 518,50 -> 518,60 -> 520,60 -> 520,58 -> 520,60 -> 522,60 -> 522,52 -> 522,60 -> 524,60 -> 524,54 -> 524,60
 488,148 -> 488,144 -> 488,148 -> 490,148 -> 490,141 -> 490,148 -> 492,148 -> 492,144 -> 492,148 -> 494,148 -> 494,145 -> 494,148 -> 496,148 -> 496,139 -> 496,148 -> 498,148 -> 498,145 -> 498,148 -> 500,148 -> 500,141 -> 500,148 -> 502,148 -> 502,143 -> 502,148 -> 504,148 -> 504,145 -> 504,148
 490,23 -> 490,17 -> 490,23 -> 492,23 -> 492,22 -> 492,23 -> 494,23 -> 494,16 -> 494,23 -> 496,23 -> 496,17 -> 496,23 -> 498,23 -> 498,18 -> 498,23 -> 500,23 -> 500,13 -> 500,23 -> 502,23 -> 502,13 -> 502,23 -> 504,23 -> 504,13 -> 504,23 -> 506,23 -> 506,15 -> 506,23 -> 508,23 -> 508,22 -> 508,23`,
-    day15: ``,
+    day15: `Sensor at x=2483411, y=3902983: closest beacon is at x=2289579, y=3633785
+Sensor at x=3429446, y=303715: closest beacon is at x=2876111, y=-261280
+Sensor at x=666423, y=3063763: closest beacon is at x=2264411, y=2779977
+Sensor at x=3021606, y=145606: closest beacon is at x=2876111, y=-261280
+Sensor at x=2707326, y=2596893: closest beacon is at x=2264411, y=2779977
+Sensor at x=3103704, y=1560342: closest beacon is at x=2551409, y=2000000
+Sensor at x=3497040, y=3018067: closest beacon is at x=3565168, y=2949938
+Sensor at x=1708530, y=855013: closest beacon is at x=2551409, y=2000000
+Sensor at x=3107437, y=3263465: closest beacon is at x=3404814, y=3120160
+Sensor at x=2155249, y=2476196: closest beacon is at x=2264411, y=2779977
+Sensor at x=3447897, y=3070850: closest beacon is at x=3404814, y=3120160
+Sensor at x=2643048, y=3390796: closest beacon is at x=2289579, y=3633785
+Sensor at x=3533132, y=3679388: closest beacon is at x=3404814, y=3120160
+Sensor at x=3683790, y=3017900: closest beacon is at x=3565168, y=2949938
+Sensor at x=1943208, y=3830506: closest beacon is at x=2289579, y=3633785
+Sensor at x=3940100, y=3979653: closest beacon is at x=2846628, y=4143786
+Sensor at x=3789719, y=1225738: closest beacon is at x=4072555, y=1179859
+Sensor at x=3939775, y=578381: closest beacon is at x=4072555, y=1179859
+Sensor at x=3880152, y=3327397: closest beacon is at x=3404814, y=3120160
+Sensor at x=3280639, y=2446475: closest beacon is at x=3565168, y=2949938
+Sensor at x=2348869, y=2240374: closest beacon is at x=2551409, y=2000000
+Sensor at x=3727441, y=2797456: closest beacon is at x=3565168, y=2949938
+Sensor at x=3973153, y=2034945: closest beacon is at x=4072555, y=1179859
+Sensor at x=38670, y=785556: closest beacon is at x=311084, y=-402911
+Sensor at x=3181909, y=2862960: closest beacon is at x=3565168, y=2949938
+Sensor at x=3099490, y=3946226: closest beacon is at x=2846628, y=4143786`,
     day16: ``,
     day17: ``,
     day18: ``,
