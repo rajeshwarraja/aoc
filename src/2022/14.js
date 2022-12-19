@@ -3,8 +3,8 @@ const puzzleInput = require('./input.js').day14
 const sampleInput = `498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9`
 
-function isRock(rocks, point) {
-    return rocks.reduce((isRock, face) => face.reduce((isRock, to, index, arr) => {
+function isRock(cave, point) {
+    return cave.rocks.reduce((isRock, face) => face.reduce((isRock, to, index, arr) => {
 	if(index === 0 || isRock) return isRock
 	const from = arr[index - 1]
 	if(to.x === from.x) {
@@ -19,8 +19,8 @@ function isRock(rocks, point) {
     }, isRock), false)
 }
 
-function isSand(sands, point) {
-    return sands.some((s) => s.x === point.x && s.y === point.y)
+function isSand(cave, point) {
+    return cave.sands.some((s) => s.x === point.x && s.y === point.y)
 }
 
 function bounday(items) {
@@ -31,63 +31,81 @@ function bounday(items) {
     return [topRight, bottomLeft]
 }
 
-function isVoid(rocks, point) {
-    const [_, bottomLeft] = bounday(rocks.flatMap((line) => line))
+function isVoid(cave, point) {
+    const [_, bottomLeft] = cave.bounday
     return point.y > bottomLeft.y
 }
 
-function render(rocks, sands) {
-    const all = rocks.flatMap((line) => line).concat(sands)
-    const [topRight, bottomLeft] = bounday(all)
+function render(cave) {
+    const [topRight, bottomLeft] = cave.bounday
     console.log("TR:", topRight, " BL:", bottomLeft)
 
     for(let y = topRight.y; y <= bottomLeft.y; ++y) {
 	let row = ''
 	for(let x = bottomLeft.x; x <= topRight.x; ++x) {
-	    if(isRock(rocks, {x,y})) row += '#'
-	    else if(isSand(sands, {x,y})) row += 'o'
+	    if(isRock(cave, {x,y})) row += '#'
+	    else if(isSand(cave, {x,y})) row += 'o'
 	    else row+= '.'
 	}
 	console.log(row)
     }
 }
 
-function drop(rocks, sands, sand) {
+function drop(cave, sand) {
     if(sand === undefined) return
     
-    if(isVoid(rocks, sand)) {
+    if(isVoid(cave, sand)) {
 	return null
     }
 
     let next
-    if(!isRock(rocks, sand) && !isSand(sands, sand)) {
-	next = drop(rocks, sands, {x:sand.x, y:sand.y+1})
-	if(next === undefined) next = drop(rocks, sands, {x:sand.x-1,y:sand.y+1})
-	if(next === undefined) next = drop(rocks, sands, {x:sand.x+1,y:sand.y+1})
+    if(!isRock(cave, sand) && !isSand(cave, sand)) {
+	next = drop(cave, {x:sand.x, y:sand.y+1})
+	if(next === undefined) next = drop(cave, {x:sand.x-1,y:sand.y+1})
+	if(next === undefined) next = drop(cave, {x:sand.x+1,y:sand.y+1})
 	if(next === undefined) next = sand
     }
     return next
 }
 
-function solvePart1(input) {
+function constructCave(input) {
     const rocks = input.split('\n').map((line) => line.split(' -> ').map((point) => {
 	const [x,y] = point.split(',').map(Number)
 	return {x,y}
     }))
 
-    let sands = []
-    
+    return {
+	rocks: rocks,
+	sands: [],
+	bounday: bounday(rocks.flatMap((face) => face))
+    }
+}
+
+function fillCave(cave) {
     for(;;) {
-	const rest = drop(rocks, sands, {x:500,y:0})
-	if(rest) sands.push(rest)
+	const rest = drop(cave, {x:500,y:0})
+	if(rest) cave.sands.push(rest)
 	else break
     }
-    
-    return sands.length
+    return cave.sands.length    
+}
+
+function solvePart1(input) {
+    const cave = constructCave(input)
+    return fillCave(cave)
 }
 
 function solvePart2(input) {
-
+    const cave = constructCave(input)
+    // Add floor
+    const [topRight, bottomLeft] = cave.bounday
+    cave.rocks.push([
+	{x:bottomLeft.x - 200, y:bottomLeft.y + 2},
+	{x:topRight.x + 200, y:bottomLeft.y + 2}
+    ])
+    cave.bounday = bounday(cave.rocks.flatMap((face) => face))
+    const count = fillCave(cave)
+    return count
 }
 
 function run() {
