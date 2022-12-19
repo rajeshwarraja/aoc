@@ -42,16 +42,12 @@ function constructScan(input) {
 function solvePart1(input, line) {
     const scan = constructScan(input)
 
-    const sensors = scan.filter((data) => {
-	return Math.abs(data.sensor.y - line) < data.distance
-    })
-
     const beacons = scan.reduce((beacons, data) => {
 	if(data.beacon.y === line && !beacons.some((temp)=> temp.beacon.x === data.beacon.x)) beacons.push(data)	
 	return beacons
     }, [])
     
-    const coverage = sensors.map((data) => {
+    const coverage = scan.filter((data) => Math.abs(data.sensor.y - line) < data.distance).map((data) => {
 	const strength = data.distance - Math.abs(data.sensor.y - line)
 	const [start,end] = [data.sensor.x-strength,data.sensor.x+strength]
 	return {start, end}
@@ -72,14 +68,37 @@ function solvePart1(input, line) {
     return coverage.count
 }
 
-function solvePart2(input) {
+function solvePart2(input, max) {
+    const scan = constructScan(input)
 
+    let coverList = []
+    for (let line = 0; line <= max; ++line) {
+	coverList.push(scan.filter((data) => Math.abs(data.sensor.y - line) < data.distance).map((data) => {
+	    const strength = data.distance - Math.abs(data.sensor.y - line)
+	    const [start, end] = [data.sensor.x - strength, data.sensor.x + strength]
+	    return { start, end }
+	}).sort((r1, r2) => r1.start - r2.start).reduce((cover, range) => {
+	    if(cover.segments.length === 0) {
+		cover.segments.push(range)
+	    } else {
+		const prevSeg = cover.segments[cover.segments.length - 1]
+		if(range.start < prevSeg.end + 2) {
+		    if(prevSeg.end < range.end) prevSeg.end = range.end
+		}
+		else cover.segments.push(range)
+	    }
+	    return cover
+	}, {count:0, line, start: 0, end:max, segments:[]}))
+    }
+
+    const beacon = coverList.filter((cover) => cover.segments.length > 1)[0]
+    return (beacon.segments[0].end + 1) * 4000000 + beacon.line
 }
 
 function run() {
     console.log('********* Day 15 *********')
-    console.log(`Part 1: ${solvePart1(puzzleInput, 2000000)}`)
-    console.log(`Part 2: ${solvePart2(sampleInput)}`)
+    console.log(`Part 1: ${solvePart1(sampleInput, 10)}`)
+    console.log(`Part 2: ${solvePart2(sampleInput, 20)}`)
 }
 
 module.exports = {
