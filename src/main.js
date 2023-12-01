@@ -15,6 +15,7 @@ const days = [
     require('./2022/14.js'),
     require('./2022/15.js'),
     require('./2022/16.js'),
+    require('./2023/1.js'),
 ]
 
 // days.slice(0, days.length - 1).forEach((day) => day.run())
